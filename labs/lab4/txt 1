@@ -1,1 +1,21 @@
-hello
+#!/bin/bash
+if [ "$#" -ne 3 ]; then
+    echo "Usage: $0 <image.png> <ds2002-uyn4rh> <expiration_seconds>"
+    exit 1
+fi
+IMAGE_FILE=$1
+S3_BUCKET=$2
+EXPIRATION=$3
+aws s3 cp "$IMAGE_FILE" "s3://$S3_BUCKET/" --acl private
+if [ $? -ne 0 ]; then
+    echo "Upload failed"
+    exit 1
+fi
+echo "Successfully uploaded $IMAGE_FILE to s3://$S3_BUCKET/"
+PRESIGNED_URL=$(aws s3 presign "s3://$S3_BUCKET/$IMAGE_FILE" --expires-in $EXPIRATION)
+if [ $? -ne 0 ]; then
+    echo "Failed to generate presigned URL."
+    exit 1
+fi
+echo "Pre-signed URL (valid for $EXPIRATION seconds):"
+echo "$PRESIGNED_URL"
