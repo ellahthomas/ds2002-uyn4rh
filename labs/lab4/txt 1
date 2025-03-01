@@ -1,6 +1,6 @@
 #!/bin/bash
 if [ "$#" -ne 3 ]; then
-    echo "Usage: $0 <image.png> <ds2002-uyn4rh> <expiration_seconds>"
+    echo "Usage: $0 <image.png> <s3-bucket-name> <expiration_seconds>"
     exit 1
 fi
 IMAGE_FILE=$1
@@ -12,7 +12,7 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 echo "Successfully uploaded $IMAGE_FILE to s3://$S3_BUCKET/"
-PRESIGNED_URL=$(aws s3 presign "s3://$S3_BUCKET/$IMAGE_FILE" --expires-in $EXPIRATION)
+PRESIGNED_URL=$(aws s3 presign "s3://$S3_BUCKET/$(basename "$IMAGE_FILE")" --expires-in "$EXPIRATION")
 if [ $? -ne 0 ]; then
     echo "Failed to generate presigned URL."
     exit 1
